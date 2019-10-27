@@ -1,1 +1,20 @@
-
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
+grib = pd.read_csv('https://stepik.org/media/attachments/course/4852/training_mush.csv')
+X=grib.drop(['class'],axis=1)
+y=grib['class']
+clf_rf=RandomForestClassifier(criterion='entropy',random_state=0)
+parametrs={'n_estimators':range(10,50,10),'max_depth':range(1,12,2),'min_samples_leaf':range(1,7),'min_samples_split':range(2,9,2)}
+grid_search_cv_clf=GridSearchCV(clf_rf,parametrs,cv=3,n_jobs=-1)
+grid_search_cv_clf.fit(X,y)
+grid_search_cv_clf.best_params_
+best_clf=grid_search_cv_clf.best_estimator_
+feature_importances=best_clf.feature_importances_
+feature_importances_df=pd.DataFrame({'features':list(X),'feature_importances':feature_importances}
+feature_importances_df.sort_values('feature_importances',ascending=False)
+test=pd.read_csv('https://stepik.org/media/attachments/course/4852/testing_mush.csv')
+s=best_clf.predict(test)
+s.tolist().count(1)
